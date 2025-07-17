@@ -11,21 +11,28 @@ module.exports.getAllThings = (req, res, next) => {
 };
 
 module.exports.createThing = (req, res, next) => {
-  const thing = new Thing({
-    title: req.body.title,
-    description: req.body.description,
-    imageUrl: req.body.imageUrl,
-    userId: req.body.userId,
-    price: req.body.price,
-  });
+  console.log(req.body);
+  req.body.thing = JSON.parse(req.body.thing);
 
+  const url = req.protocol + "://" + req.get("host");
+  const thing = new Thing({
+    title: req.body.thing.title,
+    description: req.body.thing.description,
+    imageUrl: url + "/images/" + req.file.filename,
+    price: req.body.thing.price,
+    userId: req.body.thing.userId,
+  });
   thing
     .save()
     .then(() => {
-      res.status(201).json({ message: "Saved Succesfully" });
+      res.status(201).json({
+        message: "Post saved successfully!",
+      });
     })
     .catch((error) => {
-      res.status(400).json({ error });
+      res.status(400).json({
+        error: error,
+      });
     });
 };
 
