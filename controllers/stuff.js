@@ -49,13 +49,28 @@ module.exports.findThing = (req, res, next) => {
 };
 
 module.exports.updateThing = (req, res, next) => {
-  const thing = new Thing({
-    _id: req.params.id,
-    title: req.body.title,
-    description: req.body.description,
-    price: req.body.price,
-    imageUrl: req.body.imageUrl,
-  });
+  let thing = new Thing({_id : req.params.id})
+  if (req.file) {
+    req.body.thing = JSON.parse(req.body.thing);
+
+    const url = req.protocol + "://" + req.get("host");
+    thing = {
+      _id : req.params.id,
+      title: req.body.thing.title,
+      description: req.body.thing.description,
+      imageUrl: url + "/images/" + req.file.filename,
+      price: req.body.thing.price,
+      userId: req.body.thing.userId,
+    };
+  } else {
+    thing = {
+      _id: req.params.id,
+      title: req.body.title,
+      description: req.body.description,
+      price: req.body.price,
+      imageUrl: req.body.imageUrl,
+    };
+  }
   Thing.updateOne({ _id: req.params.id }, thing)
     .then(() => {
       res.status(200).json({
